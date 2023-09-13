@@ -1,14 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 
 public class fall_plat : MonoBehaviour
 {
     private Animator anim;
-    private bool playerOn = false;
-    [SerializeField] private GameObject[] wp;
-    [SerializeField] private float speed = 7f;
-    private sbyte currentIndex = 1;
     // Start is called before the first frame update
     void Start()
     {
