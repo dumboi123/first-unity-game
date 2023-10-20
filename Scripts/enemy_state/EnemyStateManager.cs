@@ -7,15 +7,14 @@ public class EnemyStateManager : MonoBehaviour
 {
     [SerializeField] private byte damage;
     private Rigidbody2D rb;
+    private SpriteRenderer dir;
     private Color Original;
-    
     private Vector3 sightdirect;
 
-    public GameObject[] wp, limit;
-    public float speed = 3f, chasezone = 0, chasedistance = 0;
+    public GameObject[] wp;    
     public Transform player;
-    public Animator anim;
-    public SpriteRenderer dir;
+    public Animator anim;   
+    public float speed = 3f;
     public sbyte currentIndex = 0;
     public bool freeze, ischasing, chased, isdead;
 
@@ -28,12 +27,11 @@ public class EnemyStateManager : MonoBehaviour
     public ReturnPatrol ReturnState = new ReturnPatrol();
 
 
-    //RaycastHit2D hit;
+    RaycastHit2D hit;
     private void Awake()
     {
         anim.GetComponent<Animator>();
         Original = GetComponent<Renderer>().material.color;
-        chasedistance = Vector2.Distance(player.position, transform.position);
     }
     void Start()
     {
@@ -43,12 +41,12 @@ public class EnemyStateManager : MonoBehaviour
     void Update() 
     {
         sightdirect = transform.localScale * new Vector2(1,0);
-        //hit = Physics2D.Raycast(transform.position, sightdirect, 10f,~(1<<8));
-        //Debug.DrawRay(transform.position, sightdirect*10f, Color.red);
+        hit = Physics2D.Raycast(transform.position, sightdirect, 10f, ~(1 << 8));
+        Debug.Log(hit.collider);
+        Debug.DrawRay(transform.position, sightdirect * 10f, Color.red);
         if (!isdead)
         {
             CurrentState.UpdateState(this);
-            chasedistance = Vector2.Distance(player.position, transform.position);
         }
         else
         {
@@ -92,7 +90,10 @@ public class EnemyStateManager : MonoBehaviour
     }
     public bool Chasezone()
     {
-        return Physics2D.Raycast(transform.position, sightdirect, 10f, ~(1<<8)).collider.name == "player";
+        if (hit.collider != null)
+            return Physics2D.Raycast(transform.position, sightdirect, 10f, ~(1 << 8)).collider.name == "player";
+        else
+            return false;
     }
 
     private bool DotTest(Vector2 collisionNor)
