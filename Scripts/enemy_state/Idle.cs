@@ -1,4 +1,4 @@
-using UnityEngine;
+
 
 public class Idle : EnemyBaseState
 {
@@ -11,7 +11,7 @@ public class Idle : EnemyBaseState
     {
         if (!enemy.chased)
         {
-            if (enemy.chasedistance <= enemy.chasezone)
+            if (enemy.Chasezone())
                 enemy.SwitchState(enemy.ChaseState);
             else
                 enemy.SwitchState(enemy.PatrolState);

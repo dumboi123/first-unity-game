@@ -1,5 +1,5 @@
 
-using UnityEngine;
+
 
 public class Chase : EnemyBaseState
 {
@@ -10,7 +10,7 @@ public class Chase : EnemyBaseState
     }
     public override void UpdateState(EnemyStateManager enemy) 
     {
-        if (enemy.chasedistance <= enemy.chasezone && !enemy.OutRange(enemy.player, enemy.limit))
+        if (enemy.Chasezone())
             enemy.Chasing();
         else
         {

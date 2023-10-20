@@ -8,14 +8,17 @@ public class EnemyStateManager : MonoBehaviour
     [SerializeField] private byte damage;
     private Rigidbody2D rb;
     private Color Original;
+    
+    private Vector3 sightdirect;
 
     public GameObject[] wp, limit;
     public float speed = 3f, chasezone = 0, chasedistance = 0;
     public Transform player;
     public Animator anim;
-    public SpriteRenderer spr,dir;
+    public SpriteRenderer dir;
     public sbyte currentIndex = 0;
     public bool freeze, ischasing, chased, isdead;
+
 
     EnemyBaseState CurrentState;
     public Dead DeadState = new Dead();
@@ -24,10 +27,11 @@ public class EnemyStateManager : MonoBehaviour
     public Chase ChaseState = new Chase();
     public ReturnPatrol ReturnState = new ReturnPatrol();
 
+
+    //RaycastHit2D hit;
     private void Awake()
     {
         anim.GetComponent<Animator>();
-        spr = GetComponent<SpriteRenderer>();
         Original = GetComponent<Renderer>().material.color;
         chasedistance = Vector2.Distance(player.position, transform.position);
     }
@@ -36,8 +40,11 @@ public class EnemyStateManager : MonoBehaviour
         CurrentState = PatrolState;
         CurrentState.EnterState(this);
     }
-    void Update()
+    void Update() 
     {
+        sightdirect = transform.localScale * new Vector2(1,0);
+        //hit = Physics2D.Raycast(transform.position, sightdirect, 10f,~(1<<8));
+        //Debug.DrawRay(transform.position, sightdirect*10f, Color.red);
         if (!isdead)
         {
             CurrentState.UpdateState(this);
@@ -62,11 +69,11 @@ public class EnemyStateManager : MonoBehaviour
         if(collision.gameObject.tag == "immortal")
         { 
             isdead = true;
+            GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
             Physics2D.IgnoreLayerCollision(7, 8);
             return ;
         }
-        Vector2 collisionNormal = collision.contacts[0].normal;
-        collision.gameObject.GetComponent<playerMovement>().SetDoubleJump(true);
+        Vector2 collisionNormal = collision.contacts[0].normal;      
         dir = collision.gameObject.GetComponent<SpriteRenderer>();
         rb = collision.gameObject.GetComponent<Rigidbody2D>();  
         if (collision.gameObject.name == "player")
@@ -75,20 +82,26 @@ public class EnemyStateManager : MonoBehaviour
             {
                 isdead = true;
                 rb.velocity = Vector2.zero;
+                collision.gameObject.GetComponent<playerMovement>().SetDoubleJump(true);
                 if (!dir.flipX) rb.AddForce(new Vector2(400f, 400f));
                 else rb.AddForce(new Vector2(-400f, 400f));
-            }
-                
+            }         
             else
                 collision.gameObject.GetComponent<Life>().Damaged(damage);
         }
     }
+    public bool Chasezone()
+    {
+        return Physics2D.Raycast(transform.position, sightdirect, 10f, ~(1<<8)).collider.name == "player";
+    }
+
     private bool DotTest(Vector2 collisionNor)
     {
         return Vector2.Dot(collisionNor, Vector2.down) > 0.25f;
     } 
     public void SetDead()
     {
+        GetComponent<Renderer>().material.color = Original;
         anim.SetTrigger("explode");
     }
     private void Explode()
@@ -107,9 +120,9 @@ public class EnemyStateManager : MonoBehaviour
             anim.SetInteger("state", 1);
             Vector3 direction = (wp[currentIndex].transform.position - transform.position).normalized;
             if (direction.x > 0)
-                transform.localScale = new Vector2(-1, 1);
-            else if (direction.x < 0)
                 transform.localScale = Vector2.one;
+            else if (direction.x < 0)
+                transform.localScale = new Vector2(-1,1);
             chased = (Vector2.Distance(transform.position, wp[0].transform.position) < .1f || Vector2.Distance(transform.position, wp[1].transform.position) < .1f) ? false : true;
             transform.position = Vector2.MoveTowards(transform.position, wp[currentIndex].transform.position, Time.deltaTime * speed);
         }
@@ -119,9 +132,9 @@ public class EnemyStateManager : MonoBehaviour
     {
         GetComponent<Renderer>().material.color = new Color(217 / 255f, 71 / 255f, 59 / 255f);
         if (transform.position.x < player.position.x)
-            transform.localScale = new Vector2(-1, 1);
-        else if (transform.position.x > player.position.x)
             transform.localScale = Vector2.one;
+        else if (transform.position.x > player.position.x)
+            transform.localScale = new Vector2(-1,1);
         anim.SetInteger("state", 1);
         Vector2 targetPosition = new Vector2(player.position.x, transform.position.y);
         transform.position = Vector2.MoveTowards(transform.position, targetPosition, speed *1.8f* Time.deltaTime);
@@ -147,7 +160,7 @@ public class EnemyStateManager : MonoBehaviour
     }
     private void Fliping()
     {
-        spr.flipX = !spr.flipX;
+        transform.localScale = new Vector2(-transform.localScale.x, transform.localScale.y);
     }
     IEnumerator idle()
     {
@@ -161,7 +174,7 @@ public class EnemyStateManager : MonoBehaviour
             if (ischasing)
             {
                 Debug.Log("Break");
-                spr.flipX = true;
+                //transform.localScale = new Vector2(-1, transform.localScale.y);
                 CancelInvoke("Fliping");
                 freeze = false;
                 yield break;
@@ -171,9 +184,9 @@ public class EnemyStateManager : MonoBehaviour
         }
         CancelInvoke("Fliping");
         if (currentIndex == 1)
-            transform.localScale = new Vector2(-1, 1);
-        else if (currentIndex == 0)
             transform.localScale = Vector2.one;
+        else if (currentIndex == 0)
+            transform.localScale = new Vector2(-1, 1);
         freeze = false;
         yield break;
     }

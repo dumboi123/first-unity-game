@@ -71,7 +71,7 @@ public class collector : MonoBehaviour
     private void Collected(Collider2D collision)
     {
         Destroy(collision.gameObject);
-        collect_sound.Play();
+        //collect_sound.Play();
     }
 
     IEnumerator SpeedUp()

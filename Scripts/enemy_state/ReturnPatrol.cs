@@ -1,5 +1,5 @@
 
-using UnityEngine;
+
 
 public class ReturnPatrol : EnemyBaseState
 {
@@ -9,7 +9,7 @@ public class ReturnPatrol : EnemyBaseState
     }
     public override void UpdateState(EnemyStateManager enemy)
     {
-        if (enemy.chasedistance <= enemy.chasezone)
+        if (enemy.Chasezone())
             enemy.SwitchState(enemy.ChaseState);
         else
         {

@@ -33,7 +33,7 @@ public class ItemBag : MonoBehaviour
         if (DroppedItem != null)
         {
             GameObject LootGameObject = Instantiate(Item_form, pos, Quaternion.identity);
-            Debug.Log(DroppedItem.ItemName);
+            //Debug.Log(DroppedItem.ItemName);
             LootGameObject.tag = DroppedItem.ItemTag;
             LootGameObject.GetComponent<Animator>().Play(DroppedItem.ItemName);
 

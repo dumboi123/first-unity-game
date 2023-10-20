@@ -95,7 +95,7 @@ public class playerMovement : MonoBehaviour
     }
     private void Jumping()
     {
-        jump_sound.Play();
+        //jump_sound.Play();
         rb.velocity = new Vector2(rb.velocity.x, jumpforce);
     }
     public bool Grounded()
