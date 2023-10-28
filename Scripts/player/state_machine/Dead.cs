@@ -6,6 +6,9 @@ public class PlayerDead : PlayerBaseState
 {
     public PlayerDead(PlayerStateManager currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory) { }
     public override void EnterState() { }
-    public override void UpdateState() { }
+    public override void UpdateState() {
+        CheckSwitchState();
+    }
+    public override void CheckSwitchState() { }
     public override void ExitState() { }
 }
