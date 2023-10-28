@@ -1,0 +1,17 @@
+1. create 4 types of file : 
+    +Controller (main - contain all the function, method, variables)
+    +Abstract class (the method pattern for child class to override)
+    +child class (action of gameObject : walk, run, jump ...)
+    +StateFactory (a place to create instance of class)
+
+2. in order to let child class access the context in Controller:
+    => Abstract class MUST has : Controller _context; StateFactory _factory ;
+                                 constructor(Controller a, StateFactory b) {_context = a; _factory =b}
+                                                                 |
+    => child class MUST has a constructor and derrive its parent ( :base(a, b)) 
+    => so now child class can use context in Controller (a.Grounded()) and can change state (b)
+
+    => As child class now has its constructor
+    => in StateFactory, each create-instance state need parameter(return new childA(_context,this))
+    => StateFactory also need a constructor to get the reference of Controller: Controller _context;
+                                                                                constructor(Controller a){_context =a;}  
