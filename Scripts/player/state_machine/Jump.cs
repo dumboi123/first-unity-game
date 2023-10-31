@@ -2,13 +2,18 @@ using UnityEngine;
 
 public class PlayerJump : PlayerBaseState
 {
-    public PlayerJump(PlayerStateManager currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory) { }
+    public PlayerJump(PlayerStateManager currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory) {
+        InitializeSubState();
+     }
     public override void EnterState() {
-        _ctx.Jumping();
+        _isRootState =true;
+        _ctx._animState = PlayerStateManager.MovementStates.jump;
+        _ctx.Jump();
     }
     public override void UpdateState() {
        CheckSwitchState();
     }
+    public override void ExitState() {}
     public override void CheckSwitchState() {
         if (_ctx.Grounded())
         {
@@ -20,5 +25,10 @@ public class PlayerJump : PlayerBaseState
             SwitchState(_factory.Jump());
         }
     }
-    public override void ExitState() { }
+    public override void InitializeSubState()
+    {
+        if(_ctx._movePressed) SetSubState(_factory.Walk());
+        else SetSubState(_factory.Idle());
+    }
+    
 }

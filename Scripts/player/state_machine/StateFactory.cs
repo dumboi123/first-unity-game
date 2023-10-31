@@ -30,4 +30,8 @@ public class PlayerStateFactory
     {   
         return new PlayerIsGrounded(_context,this);
     }
+    public PlayerBaseState Fall()
+    {
+        return new PlayerFall(_context,this); 
+    }
 }

@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class PlayerDead : PlayerBaseState
+public class PlayerFall : PlayerBaseState
 {
-    public PlayerDead(PlayerStateManager currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory) { }
-    public override void EnterState() { }
+    public PlayerFall(PlayerStateManager currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory) { }
+    public override void EnterState() {
+        _ctx._animState = PlayerStateManager.MovementStates.fall;
+     }
     public override void UpdateState() {
         CheckSwitchState();
     }
