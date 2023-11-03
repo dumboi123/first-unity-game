@@ -6,10 +6,9 @@ public class PlayerIdle : PlayerBaseState
 {
     public PlayerIdle(PlayerStateManager currentContext, PlayerStateFactory playerStateFactory) :base(currentContext,playerStateFactory) { }
     public override void EnterState() {
-        Debug.Log("idle state");
         _ctx._input = 0;
-        _ctx._animState = PlayerStateManager.MovementStates.idle;
-        Debug.Log(_ctx._animState);
+        if(_ctx.Grounded())
+            _ctx._animState = PlayerStateManager.MovementStates.idle;
      }
     public override void UpdateState() {
         //_ctx._animState = MovementStates.idle;

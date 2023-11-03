@@ -16,14 +16,11 @@ public class PlayerJump : PlayerBaseState
     public override void ExitState() {}
     public override void CheckSwitchState() {
         if (_ctx.Grounded())
-        {
             SwitchState(_factory.IsGrounded());
-        }
         else if (_ctx.JumpGetButtonDown()  && _ctx._doublejump)
-        {
-            _ctx.DoubleJump();
-            SwitchState(_factory.Jump());
-        }
+            SwitchState(_factory.DoubleJump());
+        else if (_ctx.GetVelocityY() < -.1f)
+            SwitchState(_factory.Fall());
     }
     public override void InitializeSubState()
     {

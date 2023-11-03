@@ -34,4 +34,12 @@ public class PlayerStateFactory
     {
         return new PlayerFall(_context,this); 
     }
+    public PlayerBaseState DoubleJump()
+    {
+        return new PlayerDoubleJump(_context,this); 
+    }
+    public PlayerBaseState InSpace()
+    {
+        return new PlayerInSpace(_context,this); 
+    }
 }

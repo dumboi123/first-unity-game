@@ -42,8 +42,8 @@ public class EnemyStateManager : MonoBehaviour
     {
         sightdirect = transform.localScale * new Vector2(1,0);
         hit = Physics2D.Raycast(transform.position, sightdirect, 10f, ~(1 << 8));
-        Debug.Log(hit.collider);
-        Debug.DrawRay(transform.position, sightdirect * 10f, Color.red);
+        //Debug.Log(hit.collider);
+        //Debug.DrawRay(transform.position, sightdirect * 10f, Color.red);
         if (!isdead)
         {
             CurrentState.UpdateState(this);

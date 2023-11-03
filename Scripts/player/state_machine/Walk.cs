@@ -1,10 +1,12 @@
 
-
+using UnityEngine;
 public class PlayerWalk : PlayerBaseState
 {
     public PlayerWalk(PlayerStateManager currentContext, PlayerStateFactory playerStateFactory) : base(currentContext, playerStateFactory) { }
     public override void EnterState() {
-        _ctx._animState = PlayerStateManager.MovementStates.run;
+        Debug.Log("walk state");
+        if(_ctx.Grounded())
+            _ctx._animState = PlayerStateManager.MovementStates.walk;
      }
     public override void UpdateState() {
         CheckSwitchState();

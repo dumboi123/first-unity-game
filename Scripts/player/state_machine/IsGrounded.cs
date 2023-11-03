@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 
 public class PlayerIsGrounded : PlayerBaseState
@@ -10,8 +9,10 @@ public class PlayerIsGrounded : PlayerBaseState
     public override void EnterState() {
         _isRootState = true;
         _ctx._doublejump = true;
-        _ctx._animState = PlayerStateManager.MovementStates.idle;
-        Debug.Log("Isgrounded state : "+_ctx._animState);
+        if(_ctx._movePressed)
+            _ctx._animState = PlayerStateManager.MovementStates.walk;
+        else
+            _ctx._animState = PlayerStateManager.MovementStates.idle;
     }
     public override void UpdateState() {
         CheckSwitchState();
@@ -21,6 +22,8 @@ public class PlayerIsGrounded : PlayerBaseState
     {
         if (_ctx.JumpGetButton())
             SwitchState(_factory.Jump());
+        else if(!_ctx.Grounded() && _ctx.GetVelocityY() < -.1f)
+            SwitchState(_factory.Fall());
     }
     public override void InitializeSubState()
     {
