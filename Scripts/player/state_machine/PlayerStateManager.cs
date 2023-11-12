@@ -24,6 +24,7 @@ public class PlayerStateManager : MonoBehaviour
     
     private Control _playerInput;
     public PlayerBaseState CurrentState { get { return _currentState; } set { _currentState = value; } }
+
     void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -65,38 +66,38 @@ public class PlayerStateManager : MonoBehaviour
         HandleAnimation(_animState);
         //UpdateAnimation();
     }
-    private void UpdateAnimation()
-    {
-        switch (_input)
-        {
-            case > 0:
-                _state = MovementStates.walk;
-                transform.localScale = new Vector2(1,1);
-                break;
-            case < 0:
-                _state = MovementStates.walk;
-                transform.localScale = new Vector2(-1,1);
-                break;
-            default:
-                _state = MovementStates.idle;
-                break;
-        }
-        if (!Grounded())
-        {
-            switch (_rb.velocity.y)
-            {
-                case > .1f:
-                    _state = MovementStates.jump;
-                    break;
-                case < -.1f:
-                    _state = MovementStates.fall;
-                    _anim.SetBool("double_jump", false);
-                    break;
-            }
-        }
-        _anim.SetInteger("State", (int)_state);
-    }
-    private void HandleAnimation(MovementStates states){
+    // private void UpdateAnimation()
+    // {
+    //     switch (_input)
+    //     {
+    //         case > 0:
+    //             _state = MovementStates.walk;
+    //             transform.localScale = new Vector2(1,1);
+    //             break;
+    //         case < 0:
+    //             _state = MovementStates.walk;
+    //             transform.localScale = new Vector2(-1,1);
+    //             break;
+    //         default:
+    //             _state = MovementStates.idle;
+    //             break;
+    //     }
+    //     if (!Grounded())
+    //     {
+    //         switch (_rb.velocity.y)
+    //         {
+    //             case > .1f:
+    //                 _state = MovementStates.jump;
+    //                 break;
+    //             case < -.1f:
+    //                 _state = MovementStates.fall;
+    //                 _anim.SetBool("double_jump", false);
+    //                 break;
+    //         }
+    //     }
+    //     _anim.SetInteger("State", (int)_state);
+    // }
+    public void HandleAnimation(MovementStates states){
         _anim.SetInteger("State",(int)states);
     }
     public float GetVelocityY(){
@@ -133,7 +134,18 @@ public class PlayerStateManager : MonoBehaviour
 
 
 
-
+    public void SetDoubleJump(bool x)
+    {
+        _doublejump = x;
+    }
+    public void SetSpeed(float x)
+    {
+        _speed = x;
+    }
+    public void SetJumpforce(float x)
+    {
+        _jumpforce = x;
+    }
 
     
     private void OnCollisionEnter2D(Collision2D collision)

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class collector : MonoBehaviour
 {
     private Color Original;
-    private playerMovement player;
+    private PlayerStateManager player;
     private short cherries = 0;
     private Life life;
     [SerializeField] private Text cherriestext;
@@ -16,17 +16,17 @@ public class collector : MonoBehaviour
     {
         life = GetComponent<Life>();
         Original = GetComponent<Renderer>().material.color;
-        player = GetComponent<playerMovement>();
+        player = GetComponent<PlayerStateManager>();
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         switch (collision.gameObject.tag)
         {
-            case "collectable":
-                Collected(collision);
-                cherries++;
-                cherriestext.text = "        X " + cherries;
-                break;
+            // case "collectable":
+            //     Collected(collision);
+            //     cherries++;
+            //     cherriestext.text = "        X " + cherries;
+            //     break;
             case "HP":
                 Collected(collision);
                 life.Healed(2);
@@ -40,7 +40,7 @@ public class collector : MonoBehaviour
                 life.IncreaseMaxHP();
                 break;
             case "PWU":
-               Collected(collision);
+                Collected(collision);
                 StartCoroutine("SpeedUp");
                 break;
 

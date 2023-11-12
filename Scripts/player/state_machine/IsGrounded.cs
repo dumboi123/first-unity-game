@@ -20,7 +20,7 @@ public class PlayerIsGrounded : PlayerBaseState
     public override void ExitState() {}
     public override void CheckSwitchState()
     {
-        if (_ctx.JumpGetButton())
+        if (_ctx.JumpGetButton() || (!_ctx.Grounded() && _ctx.GetVelocityY() > .1f))
             SwitchState(_factory.Jump());
         else if(!_ctx.Grounded() && _ctx.GetVelocityY() < -.1f)
             SwitchState(_factory.Fall());
