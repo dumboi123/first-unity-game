@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 
 public class jum_pad : MonoBehaviour
@@ -8,8 +7,11 @@ public class jum_pad : MonoBehaviour
     [SerializeField] private Rigidbody2D player_rb;
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.name == "player" && collision.gameObject.GetComponent<playerMovement>().Grounded())
-            anim.SetBool("collide",true);
+        if (collision.gameObject.name == "player" && collision.gameObject.GetComponent<PlayerStateManager>().Grounded())
+            {
+                anim.SetBool("collide",true);
+                collision.gameObject.GetComponent<PlayerStateManager>()._animState = PlayerStateManager.MovementStates.jump;
+            }
     }
 
     private void UpWeGo()

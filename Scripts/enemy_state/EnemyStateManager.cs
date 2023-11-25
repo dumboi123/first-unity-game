@@ -64,23 +64,24 @@ public class EnemyStateManager : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {   
+        Vector2 collisionNormal = collision.contacts[0].normal;      
+        dir = collision.gameObject.GetComponent<SpriteRenderer>();
+        rb = collision.gameObject.GetComponent<Rigidbody2D>();        
         if(collision.gameObject.tag == "immortal")
         { 
             isdead = true;
             GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
-            Physics2D.IgnoreLayerCollision(7, 8);
+            GetComponent<BoxCollider2D>().excludeLayers = LayerMask.GetMask("Player");
+            // Physics2D.IgnoreLayerCollision(7, 8);
             return ;
         }
-        Vector2 collisionNormal = collision.contacts[0].normal;      
-        dir = collision.gameObject.GetComponent<SpriteRenderer>();
-        rb = collision.gameObject.GetComponent<Rigidbody2D>();  
-        if (collision.gameObject.name == "player")
+        else if (collision.gameObject.name == "player")
         {
             if (DotTest(collisionNormal))
             {
                 isdead = true;
                 rb.velocity = Vector2.zero;
-                collision.gameObject.GetComponent<playerMovement>().SetDoubleJump(true);
+                collision.gameObject.GetComponent<PlayerStateManager>().SetDoubleJump(true);
                 if (!dir.flipX) rb.AddForce(new Vector2(400f, 400f));
                 else rb.AddForce(new Vector2(-400f, 400f));
             }         

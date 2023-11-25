@@ -19,7 +19,7 @@ public class fall_plat : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.name == "player" && collision.gameObject.GetComponent<playerMovement>().Grounded())
+        if (collision.gameObject.name == "player" && collision.gameObject.GetComponent<PlayerStateManager>().Grounded())
         {
             if(tag != "mfplat")
             {

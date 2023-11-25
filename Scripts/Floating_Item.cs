@@ -6,7 +6,8 @@ public class Floating_Item : MonoBehaviour
     private sbyte a;
     private Rigidbody2D rb;
     private BoxCollider2D _coll;
-    private Vector2 originalY;
+    private Vector2 originalY,normal;
+    // private Vector3 normal;
     // public float floatStrength;
     private void Awake()
     {
@@ -30,7 +31,8 @@ public class Floating_Item : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.layer == 6)
+        normal =collision.GetContact(0).normal;
+        if (collision.gameObject.layer == 6 && normal == Vector2.up)
             enabled = true;   
     }
     private void fObject(sbyte a = 1)
@@ -39,6 +41,7 @@ public class Floating_Item : MonoBehaviour
     }
     public bool Grounded()
     {
-        return Physics2D.BoxCast(_coll.bounds.center, _coll.bounds.size, 0f, Vector2.down, .1f, 1<<6);
+        // return Physics2D.BoxCast(_coll.bounds.center, _coll.bounds.size, 0f, Vector2.down, .1f, 1<<6);
+        return Physics2D.OverlapCircle(transform.position,5,1<<6);
     }  
 }

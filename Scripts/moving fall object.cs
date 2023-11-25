@@ -7,7 +7,7 @@ public class movingfallobject : MonoBehaviour
     [SerializeField] private GameObject[] wp;
     [SerializeField] private float speed = 7f;
     private sbyte currentIndex = 0;
-
+// add more point for plat to move in the future
     void Update()
     {
         if (Vector2.Distance(wp[currentIndex].transform.position, transform.position) < .1f)
