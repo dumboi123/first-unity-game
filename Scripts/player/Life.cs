@@ -7,6 +7,7 @@ public class Life : MonoBehaviour
     [SerializeField] private GameObject heartb;
     private Animator anim;
     private Rigidbody2D rb;
+    private bool died ;
     private Vector3 CheckPoint;
     [SerializeField] private AudioSource death_sound;
     public float health, maxhealth;
@@ -66,6 +67,9 @@ public class Life : MonoBehaviour
     }
     public void Die()
     {
+        if(!died)
+        {
+        died = true;
         health = 0;
         OnPlayerLife?.Invoke();
         Physics2D.IgnoreLayerCollision(7, 0);
@@ -73,9 +77,11 @@ public class Life : MonoBehaviour
         death_sound.Play();
         rb.bodyType = RigidbodyType2D.Static;
         anim.SetTrigger("death");
+        }
     }
     private void restart()
     {
+        died = false;
         health = maxhealth;
         OnPlayerLife?.Invoke();
         Physics2D.IgnoreLayerCollision(7, 0,false);

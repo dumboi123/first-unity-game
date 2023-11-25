@@ -4,54 +4,60 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.PlayerLoop;
 public class PlayerStateManager : MonoBehaviour
 {
+//===================================================================================
+    
+    private bool _isTouchingWall,_isWallSliding, _isWallJump;
+    [Header("WallJump")]
+    public float _wallSlideSpeed;
+    [SerializeField] Vector2 WallJumpForce;
+    [SerializeField] Transform GroundCheckPoint;
+    [SerializeField] Vector2 GroundCheckSize;
+    [SerializeField] Transform WallCheckPoint;
+    [SerializeField] Vector2 WallCheckSize;
+//===================================================================================
+    
     private Rigidbody2D _rb;
     private Animator _anim;
-    private float _localScaleX;
-    private BoxCollider2D _coll;
+    
+    [Header("Movement")]
     [SerializeField] private float _speed;
     [SerializeField] private float _jumpforce;
-    [SerializeField] private LayerMask _jumpcheck;
+    [SerializeField] private LayerMask _whatIsGround;
     [SerializeField] private AudioSource _jump_sound;
     public float _input, _currentMoveInput;
     public bool _doublejump, _takedamage, _movePressed, _jumpPressed, _jumpPressing ;
-    public enum MovementStates { idle, walk, jump, fall };
+    public enum MovementStates { idle, walk, jump, fall, wallslide };
     public MovementStates _animState;
-    private MovementStates _state;
+    //private MovementStates _state;
     PlayerBaseState _currentState;
     PlayerStateFactory _states;
     
     private Control _playerInput;
     public PlayerBaseState CurrentState { get { return _currentState; } set { _currentState = value; } }
+    public bool IsTouchingWall { get{return _isTouchingWall;}}
+    public bool IsWallSliding { set{ _isWallSliding = value;}}
+    public bool IsWallJump { set{_isWallJump = value;}}
 
     void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
         _anim = GetComponent<Animator>();
-        _coll = GetComponent<BoxCollider2D>();
         _playerInput = new Control();
-        _localScaleX = GetComponent<Transform>().localScale.x;
     }
     private void OnEnable(){
         _playerInput.Enable();
         _playerInput.Player.Move.started += MoveGetAxisRaw;
         _playerInput.Player.Move.performed += MoveGetAxisRaw;
         _playerInput.Player.Move.canceled += MoveGetAxisRaw;
-
-        // _playerInput.Player.Jump.started += JumpGetButtonDown;
-        // _playerInput.Player.Jump.performed += JumpGetButtonDown;
-        // _playerInput.Player.Jump.canceled += JumpGetButtonDown;
     }
     private void OnDisable(){
         _playerInput.Disable();
         _playerInput.Player.Move.started -= MoveGetAxisRaw;
         _playerInput.Player.Move.performed -= MoveGetAxisRaw;
         _playerInput.Player.Move.canceled -= MoveGetAxisRaw;
-
-        // _playerInput.Player.Jump.started -= JumpGetButtonDown;
-        // _playerInput.Player.Jump.performed -= JumpGetButtonDown;
-        // _playerInput.Player.Jump.canceled -= JumpGetButtonDown;
     }
     private void Start()
     {
@@ -62,9 +68,12 @@ public class PlayerStateManager : MonoBehaviour
     private void Update()
     {
         _currentState.UpdateStates();
-        _rb.velocity = new Vector2(_speed*_input, _rb.velocity.y);
         HandleAnimation(_animState);
-        //UpdateAnimation();
+        //Debug.Log("current state: " + _currentState);
+    }
+    private void FixedUpdate(){
+        if(!_takedamage)
+            OnMovement();
     }
     // private void UpdateAnimation()
     // {
@@ -97,6 +106,17 @@ public class PlayerStateManager : MonoBehaviour
     //     }
     //     _anim.SetInteger("State", (int)_state);
     // }
+    
+    private void OnMovement(){
+        if (_isWallSliding && _currentMoveInput != 0 )
+            _rb.velocity = new Vector2(_rb.velocity.x, -_wallSlideSpeed);
+        if (_isWallJump){
+            _rb.velocity = new Vector2(-_input*WallJumpForce.x, WallJumpForce.y);
+            Invoke("StopWallJump",0.1f);
+        }
+        else 
+            _rb.velocity = new Vector2(_speed*_input, _rb.velocity.y);
+    }
     public void HandleAnimation(MovementStates states){
         _anim.SetInteger("State",(int)states);
     }
@@ -105,11 +125,17 @@ public class PlayerStateManager : MonoBehaviour
     }
     public bool Grounded()
     {
-        return Physics2D.BoxCast(_coll.bounds.center, _coll.bounds.size, 0f, Vector2.down, .1f, _jumpcheck);
+        return Physics2D.OverlapBox(GroundCheckPoint.position,GroundCheckSize, 0, _whatIsGround);
+    }
+    public bool Walled(){
+        return Physics2D.OverlapBox(WallCheckPoint.position, WallCheckSize,0, _whatIsGround);
     }    
     public void Jump()
     {
         _rb.velocity = new Vector2(_rb.velocity.x, _jumpforce);
+    }
+    void StopWallJump(){
+        _isWallJump = false;
     }
     public void DoubleJump()
     {
@@ -123,7 +149,7 @@ public class PlayerStateManager : MonoBehaviour
         return _playerInput.Player.Jump.IsPressed();
     }
     public bool JumpGetButtonDown(){
-        return _playerInput.Player.Jump.WasPressedThisFrame();
+        return _playerInput.Player.Jump.WasPerformedThisFrame();
     }
      private void MoveGetAxisRaw(InputAction.CallbackContext ctx){
         _movePressed = ctx.action.IsPressed();
@@ -157,11 +183,17 @@ public class PlayerStateManager : MonoBehaviour
     {
         _takedamage = true;
         _rb.velocity = Vector2.zero;
-        // if (!dir.flipX) 
-        if(_localScaleX == -1) _rb.AddForce(new Vector2(-200f, 200f));
+        if(transform.localScale.x == -1) _rb.AddForce(new Vector2(-200f, 200f));
         else _rb.AddForce(new Vector2(200f, 200f));
         yield return new WaitForSeconds(0.5f);
         _takedamage = false;
     }
 
+    private void OnDrawGizmosSelected(){
+        Gizmos.color = Color.blue;
+        Gizmos.DrawCube(GroundCheckPoint.position, GroundCheckSize);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawCube(WallCheckPoint.position, WallCheckSize);
+    }
 }

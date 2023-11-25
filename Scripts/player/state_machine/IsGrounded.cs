@@ -9,6 +9,7 @@ public class PlayerIsGrounded : PlayerBaseState
     public override void EnterState() {
         _isRootState = true;
         _ctx._doublejump = true;
+        // Debug.Log("grounded");
         if(_ctx._movePressed)
             _ctx._animState = PlayerStateManager.MovementStates.walk;
         else
@@ -20,10 +21,17 @@ public class PlayerIsGrounded : PlayerBaseState
     public override void ExitState() {}
     public override void CheckSwitchState()
     {
-        if (_ctx.JumpGetButton() || (!_ctx.Grounded() && _ctx.GetVelocityY() > .1f))
-            SwitchState(_factory.Jump());
-        else if(!_ctx.Grounded() && _ctx.GetVelocityY() < -.1f)
-            SwitchState(_factory.Fall());
+        if (_ctx.JumpGetButton())
+        {
+            _ctx.Jump();
+            SwitchState(_factory.InSpace());
+        }
+        // else if(!_ctx.Grounded() && _ctx.GetVelocityY() < -.1f)
+        //     SwitchState(_factory.Fall());
+        else if (!_ctx.Grounded() && _ctx.GetVelocityY() < -.1f){
+            SwitchState(_factory.InSpace());
+        }
+            
     }
     public override void InitializeSubState()
     {

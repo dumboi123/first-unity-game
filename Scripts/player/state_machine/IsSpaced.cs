@@ -8,29 +8,30 @@ public class PlayerInSpace : PlayerBaseState
      }
     public override void EnterState() {
         _isRootState = true;
-        Debug.Log("spacing");
-        // if(_ctx.JumpGetButton())
-        //     _ctx.Jump();
-        // else if(_ctx.GetVelocityY()< -.1f)
-        //     _ctx._animState = PlayerStateManager.MovementStates.fall;
-        //_ctx.Jump();
-        //_ctx._animState = PlayerStateManager.MovementStates.jump;
+        if(_ctx.GetVelocityY() < -.1f)
+            _ctx._animState = PlayerStateManager.MovementStates.fall;
+        else if (_ctx.GetVelocityY() > .1f)
+            _ctx._animState = PlayerStateManager.MovementStates.jump;
      }
     public override void UpdateState() {
         CheckSwitchState();
     }
     public override void ExitState() { }
     public override void CheckSwitchState() {
-        if (_ctx.Grounded())
+        if (_ctx.Grounded()){
+            _ctx.IsWallSliding = false;
             SwitchState(_factory.IsGrounded());
+        }
      }
     public override void InitializeSubState()
     {
-        //SetSubState(_factory.DoubleJump());
-        if(_ctx.JumpGetButton() && _ctx.Grounded()) 
-            SetSubState(_factory.Jump());
-        else if(_ctx.GetVelocityY() <-.1f )
+        if(_ctx.JumpGetButtonDown()) 
+            SetSubState(_factory.DoubleJump());
+        else if(_ctx.GetVelocityY() <-.1f)
             SetSubState(_factory.Fall());
+        else if ((_ctx._currentMoveInput!=0 || _ctx.GetVelocityY() < -.1f) && _ctx.Walled())
+            SetSubState(_factory.WallSlide());
+        else if(_ctx.GetVelocityY() >.1f)
+            SetSubState(_factory.Jump());
     }
-    
 }

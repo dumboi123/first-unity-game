@@ -42,4 +42,8 @@ public class PlayerStateFactory
     {
         return new PlayerInSpace(_context,this); 
     }
+    public PlayerBaseState WallSlide()
+    {
+        return new PlayerWallSlide(_context,this);
+    }
 }

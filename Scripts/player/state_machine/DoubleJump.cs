@@ -6,8 +6,8 @@ public class PlayerDoubleJump : PlayerBaseState
         InitializeSubState();
      }
     public override void EnterState() {
-        _isRootState =true;
-        Debug.Log("double it");
+        //_isRootState =true;
+        // Debug.Log("double it");
         _ctx.Jump();
         _ctx.DoubleJump();
      }
@@ -16,10 +16,12 @@ public class PlayerDoubleJump : PlayerBaseState
     }
     public override void ExitState() { }
     public override void CheckSwitchState() {
-        if(_ctx.GetVelocityY() > .1f)
-            SwitchState(_factory.Jump());
-        else if(_ctx.GetVelocityY() < .1f)
+
+        if(_ctx.GetVelocityY() < -.1f)
             SwitchState(_factory.Fall());
+        else if(_ctx.Walled() && _ctx._currentMoveInput!=0)
+            SwitchState(_factory.WallSlide());
+            
      }
     public override void InitializeSubState()
     {
