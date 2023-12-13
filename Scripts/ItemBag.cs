@@ -27,20 +27,18 @@ public class ItemBag : MonoBehaviour
         return null;
            
     }
+
     public void InstantiateItem(Vector3 pos)
     {
         Item DroppedItem = GetDroppedItem();
         if (DroppedItem != null)
         {
             GameObject LootGameObject = Instantiate(Item_form, pos, Quaternion.identity);
-            //Debug.Log(DroppedItem.ItemName);
             LootGameObject.tag = DroppedItem.ItemTag;
             LootGameObject.GetComponent<Animator>().Play(DroppedItem.ItemName);
 
             Vector2 dropdirect = new Vector2(Random.Range(-1f, 1f), 1);
-            LootGameObject.GetComponent<Rigidbody2D>().AddForce(dropdirect * forcenumb, ForceMode2D.Impulse);
-            
-                 
+            LootGameObject.GetComponent<Rigidbody2D>().AddForce(dropdirect * forcenumb, ForceMode2D.Impulse);                
         }         
     }
 }

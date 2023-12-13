@@ -25,13 +25,13 @@ public class PlayerInSpace : PlayerBaseState
      }
     public override void InitializeSubState()
     {
-        if(_ctx.JumpGetButtonDown()) 
-            SetSubState(_factory.DoubleJump());
+        if(_ctx.GetVelocityY() >.1f)
+            SetSubState(_factory.Jump());
         else if(_ctx.GetVelocityY() <-.1f)
             SetSubState(_factory.Fall());
         else if ((_ctx._currentMoveInput!=0 || _ctx.GetVelocityY() < -.1f) && _ctx.Walled())
             SetSubState(_factory.WallSlide());
-        else if(_ctx.GetVelocityY() >.1f)
-            SetSubState(_factory.Jump());
+        else if(_ctx.JumpGetButtonDown()) 
+            SetSubState(_factory.DoubleJump());
     }
 }

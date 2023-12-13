@@ -6,9 +6,8 @@ public class PlayerJump : PlayerBaseState
         InitializeSubState();
      }
     public override void EnterState() {
-        //_isRootState =true;
+        Debug.Log("jump");
         _ctx._animState = PlayerStateManager.MovementStates.jump;
-        // _ctx.Jump();
     }
     public override void UpdateState() {
        CheckSwitchState();
@@ -20,7 +19,7 @@ public class PlayerJump : PlayerBaseState
             SwitchState(_factory.Fall());
         else if (_ctx.JumpGetButtonDown() && _ctx._doublejump)
             SwitchState(_factory.DoubleJump());
-        else if (_ctx.Walled() && (_ctx._currentMoveInput!=0 || _ctx.GetVelocityY() < -.1f))
+        else if (_ctx.Walled() && (_ctx._movePressed || _ctx.GetVelocityY() < -.1f))
             SwitchState(_factory.WallSlide());
         
     }

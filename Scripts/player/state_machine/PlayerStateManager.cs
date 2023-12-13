@@ -9,7 +9,6 @@ public class PlayerStateManager : MonoBehaviour
 {
 //===================================================================================
     
-    private bool _isTouchingWall,_isWallSliding, _isWallJump;
     [Header("WallJump")]
     public float _wallSlideSpeed;
     [SerializeField] Vector2 WallJumpForce;
@@ -21,21 +20,24 @@ public class PlayerStateManager : MonoBehaviour
     
     private Rigidbody2D _rb;
     private Animator _anim;
-    
+    private Control _playerInput;
+    private bool _isTouchingWall,_isWallSliding, _isWallJump;
+
     [Header("Movement")]
     [SerializeField] private float _speed;
     [SerializeField] private float _jumpforce;
-    [SerializeField] private LayerMask _whatIsGround;
+    [SerializeField] private LayerMask _checkBelow;
+    [SerializeField] private LayerMask _checkSide;
     [SerializeField] private AudioSource _jump_sound;
-    public float _input, _currentMoveInput;
-    public bool _doublejump, _takedamage, _movePressed, _jumpPressed, _jumpPressing ;
+    [NonSerialized] public float _input, _currentMoveInput;
+    [NonSerialized] public bool _doublejump, _takedamage, _movePressed, _jumpPressed, _jumpPressing ;
     public enum MovementStates { idle, walk, jump, fall, wallslide };
-    public MovementStates _animState;
-    //private MovementStates _state;
+    [NonSerialized] public MovementStates _animState;
+
     PlayerBaseState _currentState;
     PlayerStateFactory _states;
-    
-    private Control _playerInput;
+
+   //=================================================================================== 
     public PlayerBaseState CurrentState { get { return _currentState; } set { _currentState = value; } }
     public bool IsTouchingWall { get{return _isTouchingWall;}}
     public bool IsWallSliding { set{ _isWallSliding = value;}}
@@ -69,12 +71,106 @@ public class PlayerStateManager : MonoBehaviour
     {
         _currentState.UpdateStates();
         HandleAnimation(_animState);
-        //Debug.Log("current state: " + _currentState);
     }
     private void FixedUpdate(){
         if(!_takedamage)
             OnMovement();
     }
+    
+    private void OnMovement(){
+        if (_isWallSliding && _movePressed )
+            _rb.velocity = new Vector2(_rb.velocity.x, -_wallSlideSpeed);
+        if (_isWallJump){
+            _rb.velocity = new Vector2(-_input*WallJumpForce.x, WallJumpForce.y);
+            Invoke("StopWallJump",0.1f);
+        }
+        else 
+            _rb.velocity = new Vector2(_speed*_input, _rb.velocity.y);
+    }
+    public void HandleAnimation(MovementStates states) => _anim.SetInteger("State",(int)states);
+
+
+
+    public bool Grounded() => Physics2D.OverlapBox(GroundCheckPoint.position, GroundCheckSize, 0, _checkSide);
+    public bool Walled() => Physics2D.OverlapBox(WallCheckPoint.position, WallCheckSize,0, _checkSide);
+    public void Jump() => _rb.velocity = new Vector2(_rb.velocity.x, _jumpforce);
+    public void StopWallJump() => _isWallJump = false;
+    public void DoubleJump()
+    {
+        _anim.SetTrigger("double_jump");
+        _doublejump = false;
+    }
+    public bool JumpGetButton() => _playerInput.Player.Jump.IsPressed();
+    public bool JumpGetButtonDown() => _playerInput.Player.Jump.WasPressedThisFrame();
+
+    public float GetVelocityY() => _rb.velocity.y;
+    private void MoveGetAxisRaw(InputAction.CallbackContext ctx){
+        _movePressed = ctx.action.IsPressed();
+        _currentMoveInput =ctx.ReadValue<Vector2>().x;
+        if(_currentMoveInput !=0)
+            transform.localScale = _currentMoveInput > 0 ? new Vector2(1,1) : new Vector2(-1,1);
+    }
+
+
+
+    public void SetDoubleJump(bool x) => _doublejump = x;
+    public void SetSpeed(float x) => _speed = x;
+    public void SetJumpforce(float x) =>_jumpforce = x;
+    public void SetWallJumpForce(float x,float y)
+    {
+        WallJumpForce.x = x;
+        WallJumpForce.y = y; 
+    }
+    
+    private void OnTriggerEnter2D(Collider2D collider)
+    {   if(gameObject.tag == "Player")
+        {
+            GetComponent<Life>().Damaged(1); 
+            StartCoroutine("KnockBack");
+        }
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Vector2 collisionNormal = collision.contacts[0].normal;
+        if (collision.gameObject.tag == "Enemy" && gameObject.tag == "Player")
+        {
+            if (DotTest(collisionNormal))
+            {
+                Jump();
+                _doublejump = true;
+                _currentState = _states.InSpace();
+                _currentState.EnterState();
+            }         
+            else
+            {
+               GetComponent<Life>().Damaged(1); 
+               StartCoroutine("KnockBack");
+            }                
+        }
+    }    
+    private bool DotTest(Vector2 collisionNor)
+    {
+        return Vector2.Dot(collisionNor, Vector2.up) > 0.25f;
+    } 
+    IEnumerator KnockBack()
+    {
+        _takedamage = true;
+        _rb.AddForce(new Vector2(-transform.localScale.x*4, 5), ForceMode2D.Impulse);
+        _doublejump = false;
+        yield return new WaitForSeconds(0.5f);
+        _rb.velocity = new Vector2(_rb.velocity.x,_rb.velocity.y);
+        _takedamage = false;
+        _doublejump = true;
+    }
+
+
+    // private void OnDrawGizmosSelected(){
+    //     Gizmos.color = Color.blue;
+    //     Gizmos.DrawCube(GroundCheckPoint.position, GroundCheckSize);
+    //     Gizmos.color = Color.red;
+    //     Gizmos.DrawCube(WallCheckPoint.position, WallCheckSize);
+    // }
+}
     // private void UpdateAnimation()
     // {
     //     switch (_input)
@@ -106,94 +202,3 @@ public class PlayerStateManager : MonoBehaviour
     //     }
     //     _anim.SetInteger("State", (int)_state);
     // }
-    
-    private void OnMovement(){
-        if (_isWallSliding && _currentMoveInput != 0 )
-            _rb.velocity = new Vector2(_rb.velocity.x, -_wallSlideSpeed);
-        if (_isWallJump){
-            _rb.velocity = new Vector2(-_input*WallJumpForce.x, WallJumpForce.y);
-            Invoke("StopWallJump",0.1f);
-        }
-        else 
-            _rb.velocity = new Vector2(_speed*_input, _rb.velocity.y);
-    }
-    public void HandleAnimation(MovementStates states){
-        _anim.SetInteger("State",(int)states);
-    }
-    public float GetVelocityY(){
-        return _rb.velocity.y;
-    }
-    public bool Grounded()
-    {
-        return Physics2D.OverlapBox(GroundCheckPoint.position,GroundCheckSize, 0, _whatIsGround);
-    }
-    public bool Walled(){
-        return Physics2D.OverlapBox(WallCheckPoint.position, WallCheckSize,0, _whatIsGround);
-    }    
-    public void Jump()
-    {
-        _rb.velocity = new Vector2(_rb.velocity.x, _jumpforce);
-    }
-    void StopWallJump(){
-        _isWallJump = false;
-    }
-    public void DoubleJump()
-    {
-        _anim.SetBool("double_jump", true);
-        _doublejump = false;
-    }
-    public void OutDoubleJump(){
-        _anim.SetBool("double_jump", false);
-    }
-    public bool JumpGetButton(){
-        return _playerInput.Player.Jump.IsPressed();
-    }
-    public bool JumpGetButtonDown(){
-        return _playerInput.Player.Jump.WasPerformedThisFrame();
-    }
-     private void MoveGetAxisRaw(InputAction.CallbackContext ctx){
-        _movePressed = ctx.action.IsPressed();
-        _currentMoveInput =ctx.ReadValue<Vector2>().x;
-        if(_currentMoveInput !=0)
-            transform.localScale = _currentMoveInput > 0 ? new Vector2(1,1) : new Vector2(-1,1);
-    }
-
-
-
-    public void SetDoubleJump(bool x)
-    {
-        _doublejump = x;
-    }
-    public void SetSpeed(float x)
-    {
-        _speed = x;
-    }
-    public void SetJumpforce(float x)
-    {
-        _jumpforce = x;
-    }
-
-    
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("enemy") && gameObject.tag =="Untagged")  
-            StartCoroutine("KnockBack");
-    }
-    IEnumerator KnockBack()
-    {
-        _takedamage = true;
-        _rb.velocity = Vector2.zero;
-        if(transform.localScale.x == -1) _rb.AddForce(new Vector2(-200f, 200f));
-        else _rb.AddForce(new Vector2(200f, 200f));
-        yield return new WaitForSeconds(0.5f);
-        _takedamage = false;
-    }
-
-    private void OnDrawGizmosSelected(){
-        Gizmos.color = Color.blue;
-        Gizmos.DrawCube(GroundCheckPoint.position, GroundCheckSize);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawCube(WallCheckPoint.position, WallCheckSize);
-    }
-}

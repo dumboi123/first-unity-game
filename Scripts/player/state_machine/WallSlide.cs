@@ -16,7 +16,7 @@ public class PlayerWallSlide : PlayerBaseState
             _ctx.IsWallJump = true;
             SwitchState(_factory.Jump());
         }            
-        else if (!_ctx.Walled() || _ctx._currentMoveInput ==0){
+        else if (!_ctx.Walled() || !_ctx._movePressed){
             _ctx.IsWallSliding = false;
             _ctx._input =0;
             SwitchState(_factory.Fall());

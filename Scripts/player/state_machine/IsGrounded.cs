@@ -9,7 +9,6 @@ public class PlayerIsGrounded : PlayerBaseState
     public override void EnterState() {
         _isRootState = true;
         _ctx._doublejump = true;
-        // Debug.Log("grounded");
         if(_ctx._movePressed)
             _ctx._animState = PlayerStateManager.MovementStates.walk;
         else
@@ -21,15 +20,28 @@ public class PlayerIsGrounded : PlayerBaseState
     public override void ExitState() {}
     public override void CheckSwitchState()
     {
-        if (_ctx.JumpGetButton())
+        switch (_ctx.Walled())
         {
-            _ctx.Jump();
-            SwitchState(_factory.InSpace());
-        }
-        // else if(!_ctx.Grounded() && _ctx.GetVelocityY() < -.1f)
-        //     SwitchState(_factory.Fall());
-        else if (!_ctx.Grounded() && _ctx.GetVelocityY() < -.1f){
-            SwitchState(_factory.InSpace());
+            case false:
+                if (_ctx.JumpGetButton())
+                {
+                    _ctx.Jump();
+                    SwitchState(_factory.InSpace());
+                }
+                else if (!_ctx.Grounded() && _ctx.GetVelocityY() < -.1f){
+                    SwitchState(_factory.InSpace());
+                }
+            break;
+            case true:
+                if (_ctx.JumpGetButton() && !_ctx._movePressed)
+                {
+                    _ctx.Jump();
+                    SwitchState(_factory.InSpace());
+                }
+                else if (!_ctx.Grounded() && _ctx.GetVelocityY() < -.1f){
+                    SwitchState(_factory.InSpace());
+                }
+            break;
         }
             
     }

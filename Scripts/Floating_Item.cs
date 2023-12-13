@@ -5,15 +5,12 @@ public class Floating_Item : MonoBehaviour
 {
     private sbyte a;
     private Rigidbody2D rb;
-    private BoxCollider2D _coll;
     private Vector2 originalY,normal;
-    // private Vector3 normal;
-    // public float floatStrength;
+
     private void Awake()
     {
         enabled = false;
         rb = GetComponent<Rigidbody2D>();
-        _coll =GetComponent<BoxCollider2D>();
     }
     private void OnEnable()
     {
@@ -39,9 +36,9 @@ public class Floating_Item : MonoBehaviour
     {
         transform.position = new Vector2(transform.position.x, originalY.y + Mathf.Sin(Time.time) * 0.2f * a);
     }
-    public bool Grounded()
-    {
-        // return Physics2D.BoxCast(_coll.bounds.center, _coll.bounds.size, 0f, Vector2.down, .1f, 1<<6);
-        return Physics2D.OverlapCircle(transform.position,5,1<<6);
-    }  
+    // public bool Grounded()
+    // {
+    //     // return Physics2D.BoxCast(_coll.bounds.center, _coll.bounds.size, 0f, Vector2.down, .1f, 1<<6);
+    //     return Physics2D.OverlapCircle(transform.position,5,1<<6);
+    // }  
 }

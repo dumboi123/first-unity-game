@@ -22,11 +22,11 @@ public class collector : MonoBehaviour
     {
         switch (collision.gameObject.tag)
         {
-            // case "collectable":
-            //     Collected(collision);
-            //     cherries++;
-            //     cherriestext.text = "        X " + cherries;
-            //     break;
+            case "collectable":
+                Collected(collision);
+                cherries++;
+                cherriestext.text = "        X " + cherries;
+                break;
             case "HP":
                 Collected(collision);
                 life.Healed(2);
@@ -76,15 +76,17 @@ public class collector : MonoBehaviour
 
     IEnumerator SpeedUp()
     {
-        gameObject.tag = "immortal";
+        gameObject.tag = "Immortal";
         player.SetSpeed(12);
         player.SetJumpforce(20);
+        player.SetWallJumpForce(15,20);
         GetComponent<TrailRenderer>().enabled = true;
         GetComponent<Renderer>().material.color = new Color(5,11,4);
         yield return new WaitForSeconds(5);
-        gameObject.tag = "Untagged";
+        gameObject.tag = "Player";
         player.SetSpeed(6);
         player.SetJumpforce(14);
+        player.SetWallJumpForce(10,14);
         GetComponent<TrailRenderer>().enabled = false;
         GetComponent<Renderer>().material.color = Original;
 
